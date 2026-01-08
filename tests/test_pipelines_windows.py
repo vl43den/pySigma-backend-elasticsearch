@@ -191,7 +191,7 @@ def test_ecs_windows_eql_contains_expression_with_trailing_backslash_multivalue(
             title: Test
             status: test
             logsource:
-                product: test_product
+                product: windows
             detection:
                 sel:
                     field|contains:
