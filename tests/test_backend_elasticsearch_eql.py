@@ -2,7 +2,7 @@ import pytest
 from sigma.backends.elasticsearch.elasticsearch_eql import EqlBackend
 from sigma.collection import SigmaCollection
 from sigma.exceptions import SigmaFeatureNotSupportedByBackendError
-
+from sigma.pipelines.elasticsearch.windows import ecs_windows
 
 @pytest.fixture(name="eql_backend")
 def fixture_eql_backend():
@@ -833,6 +833,24 @@ def test_elasticsearch_siemrule_eql_ndjson(eql_backend: EqlBackend):
         "actions": [],
     }
 
+def test_eql_expression_trailing_backslash_pipeline():
+    eql_backend_windows = EqlBackend(ecs_windows())
+    rule = SigmaCollection.from_yaml(
+        r"""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: windows
+            detection:
+                sel:
+                    Image|contains: 'value\'
+                condition: sel
+        """
+    )
+    assert eql_backend_windows.convert(rule) == [
+        r'any where process.executable:"*value\\*"'
+    ]
 
 def test_elasticsearch_siem_rule_output(eql_backend: EqlBackend):
     """Test for output format siem_rule."""
