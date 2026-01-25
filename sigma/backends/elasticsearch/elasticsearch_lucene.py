@@ -72,7 +72,7 @@ class LuceneBackend(TextQueryBackend):
     # Values
     # string quoting character (added as escaping character)
     str_quote: ClassVar[str] = '"'
-    str_quote_pattern: ClassVar[Pattern] = re.compile(r"^$")
+    str_quote_pattern: ClassVar[Pattern] = re.compile(r"^$|\s")
     str_quote_pattern_negation: ClassVar[bool] = False
     # Escaping character for special characrers inside string
     escape_char: ClassVar[str] = "\\"
