@@ -432,7 +432,7 @@ def test_lucene_keyword_quotation(lucene_backend: LuceneBackend):
         """
     )
 
-    assert lucene_backend.convert(rule) == [r"*Failed\ to\ generate\ curve25519\ keys*"]
+    assert lucene_backend.convert(rule) == ['*"Failed\\ to\\ generate\\ curve25519\\ keys"*']
 
 
 def test_lucene_windash(lucene_backend: LuceneBackend):
@@ -480,7 +480,7 @@ def test_lucene_windash_contains(lucene_backend: LuceneBackend):
             )
         )
         == [
-            "fieldname:(*\\ \\-param\\-name\\ * OR *\\ \\/param\\-name\\ * OR *\\ –param\\-name\\ * OR *\\ —param\\-name\\ * OR *\\ ―param\\-name\\ *)"
+            'fieldname:("*\\ \\-param\\-name\\ *" OR "*\\ \\/param\\-name\\ *" OR "*\\ –param\\-name\\ *" OR "*\\ —param\\-name\\ *" OR "*\\ ―param\\-name\\ *")'
         ]
     )
 
@@ -878,7 +878,7 @@ def test_es_dsl_lucene_space_value_text(lucene_backend: LuceneBackend):
                     "must": [
                         {
                             "query_string": {
-                                "query": "textFieldA:value\\ with\\ spaces",
+                                "query": 'textFieldA:"value\\ with\\ spaces"',
                                 "analyze_wildcard": True,
                             }
                         }
@@ -905,3 +905,82 @@ def test_elasticsearch_siem_rule_ndjson_output(lucene_backend: LuceneBackend):
     """Test for output format siem_rule."""
     # TODO: implement a test for the output format
     pass
+
+
+# String quoting tests - values with whitespace must be quoted for exact phrase matching
+
+
+def test_lucene_value_with_spaces_quoted(lucene_backend: LuceneBackend):
+    """Values with spaces must be quoted for exact phrase matching."""
+    rule = SigmaCollection.from_yaml(
+        """
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel:
+                    Description: 'Windows sudo utility'
+                condition: sel
+        """
+    )
+    result = lucene_backend.convert(rule)
+    assert result == ['Description:"Windows\\ sudo\\ utility"']
+
+
+def test_lucene_value_without_spaces_not_quoted(lucene_backend: LuceneBackend):
+    """values without spaces should not be quoted"""
+    rule = SigmaCollection.from_yaml(
+        """
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel:
+                    fieldA: simplevalue
+                condition: sel
+        """
+    )
+    result = lucene_backend.convert(rule)
+    assert result == ["fieldA:simplevalue"]
+
+
+def test_lucene_contains_with_spaces_quoted(lucene_backend: LuceneBackend):
+    """contains modifier with spaces should be quoted"""
+    rule = SigmaCollection.from_yaml(
+        """
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel:
+                    CommandLine|contains: 'some command with spaces'
+                condition: sel
+        """
+    )
+    result = lucene_backend.convert(rule)
+    assert result == ['CommandLine:"*some\\ command\\ with\\ spaces*"']
+
+
+def test_lucene_empty_string_quoted(lucene_backend: LuceneBackend):
+    """empty strings should be quoted"""
+    rule = SigmaCollection.from_yaml(
+        """
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel:
+                    fieldA: ''
+                condition: sel
+        """
+    )
+    result = lucene_backend.convert(rule)
+    assert result == ['fieldA:""']
