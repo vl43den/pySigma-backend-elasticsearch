@@ -432,7 +432,7 @@ def test_lucene_keyword_quotation(lucene_backend: LuceneBackend):
         """
     )
 
-    assert lucene_backend.convert(rule) == ['*"Failed\\ to\\ generate\\ curve25519\\ keys"*']
+    assert lucene_backend.convert(rule) == ['*"Failed to generate curve25519 keys"*']
 
 
 def test_lucene_windash(lucene_backend: LuceneBackend):
@@ -480,7 +480,7 @@ def test_lucene_windash_contains(lucene_backend: LuceneBackend):
             )
         )
         == [
-            'fieldname:("*\\ \\-param\\-name\\ *" OR "*\\ \\/param\\-name\\ *" OR "*\\ –param\\-name\\ *" OR "*\\ —param\\-name\\ *" OR "*\\ ―param\\-name\\ *")'
+            'fieldname:("* \\-param\\-name *" OR "* \\/param\\-name *" OR "* –param\\-name *" OR "* —param\\-name *" OR "* ―param\\-name *")'
         ]
     )
 
@@ -878,7 +878,7 @@ def test_es_dsl_lucene_space_value_text(lucene_backend: LuceneBackend):
                     "must": [
                         {
                             "query_string": {
-                                "query": 'textFieldA:"value\\ with\\ spaces"',
+                                "query": 'textFieldA:"value with spaces"',
                                 "analyze_wildcard": True,
                             }
                         }
@@ -926,7 +926,7 @@ def test_lucene_value_with_spaces_quoted(lucene_backend: LuceneBackend):
         """
     )
     result = lucene_backend.convert(rule)
-    assert result == ['Description:"Windows\\ sudo\\ utility"']
+    assert result == ['Description:"Windows sudo utility"']
 
 
 def test_lucene_value_without_spaces_not_quoted(lucene_backend: LuceneBackend):
@@ -964,7 +964,7 @@ def test_lucene_contains_with_spaces_quoted(lucene_backend: LuceneBackend):
         """
     )
     result = lucene_backend.convert(rule)
-    assert result == ['CommandLine:"*some\\ command\\ with\\ spaces*"']
+    assert result == ['CommandLine:"*some command with spaces*"']
 
 
 def test_lucene_empty_string_quoted(lucene_backend: LuceneBackend):
