@@ -81,7 +81,7 @@ class LuceneBackend(TextQueryBackend):
     # Character used as single-character wildcard
     wildcard_single: ClassVar[str] = "?"
     # Characters quoted in addition to wildcards and string quote
-    add_escaped: ClassVar[str] = '+-=&|!(){}[]<>^"~*?:\\/ '
+    add_escaped: ClassVar[str] = '+-=&|!(){}[]<>^"~*?:\\/'
     bool_values: ClassVar[Dict[bool, str]] = (
         {  # Values to which boolean values are mapped.
             True: "true",
